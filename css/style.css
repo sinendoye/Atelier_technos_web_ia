@@ -57,7 +57,7 @@ main {
 }
 
 /* ============================================
-   3. HEADER (Flexbox)
+   - HEADER (Flexbox)
    Utile ici pour aligner les éléments du header
    sur une seule ligne
    ============================================ */
@@ -82,7 +82,7 @@ main {
 }
 
 /* ============================================
-   4. SIDEBAR
+   -SIDEBAR
    ============================================ */
 #sidebar {
     background-color: #1a2332; /* bleu marine foncé*/
@@ -109,7 +109,7 @@ main {
 }
 
 /* ============================================
-   5. ZONE PRINCIPALE
+   - ZONE PRINCIPALE
    ============================================ */
 main {
     padding: 32px;
