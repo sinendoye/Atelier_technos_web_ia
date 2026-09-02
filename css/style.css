@@ -1,0 +1,130 @@
+/* ============================================
+   - RESET CSS
+   Neutralise les styles par défaut du navigateur
+   pour partir sur une base propre et cohérente
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* les paddings/bordures ne s'ajoutent plus à la largeur totale */
+}
+
+body {
+    font-family: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, Helvetica, sans-serif;
+    background-color: #ffffff; /* fond blanc général */
+    color: #1f1f1f; /* gris très foncé, plus doux que le noir pur pour le texte */
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none; /* enlève le soulignement par défaut des liens */
+    color: inherit; /* le lien prend la couleur du texte parent, pas le bleu par défaut */
+}
+
+ul {
+    list-style: none; /* enlève les puces par défaut des listes */
+}
+
+/* ============================================
+   - MISE EN PAGE GLOBALE (Grid)
+   On utilise CSS Grid pour organiser :
+   - le header en haut sur toute la largeur
+   - la sidebar à gauche
+   - la zone principale à droite
+   ============================================ */
+   /*Grid génère nativement un système de lignes et de colonnes, alorsque flexbox permet un alignement plus simple sur une seule dimension */
+body {
+    display: grid;
+    grid-template-columns: 250px 1fr; /* sidebar fixe à 250px, le reste (1fr) pour le contenu */
+    grid-template-rows: 70px 1fr; /* header fixe à 70px de haut, le reste pour le contenu */
+    grid-template-areas: /*permet de dessiner visuellement la disposition avec des noms plutot que des numéros*/
+        "header header" /* le header occupe toute la largeur */
+        "sidebar main";/* la sidebar à gauche, le contenu à droite */
+    min-height: 100vh; /* la page occupe au moins 100% de la hauteur de l'écran vh= viewport height*/
+}
+
+/* On assigne chaque zone à sa place dans la grille définie ci-dessus */
+#entete {
+    grid-area: header;
+}
+
+#sidebar {
+    grid-area: sidebar;
+}
+
+main {
+    grid-area: main;
+}
+
+/* ============================================
+   3. HEADER (Flexbox)
+   Utile ici pour aligner les éléments du header
+   sur une seule ligne
+   ============================================ */
+#entete {
+    display: grid;
+    grid-template-columns: 250px 1fr; /* même répartition que le body : sidebar / main */
+    align-items: center;
+    background-color: #ffffff;
+    color: #c9a227; /* jaune, couleur d'accent de l'interface */
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#entete h1 {
+    padding-left: 24px; /* même espacement que le padding du <main> */
+    grid-column: 2; /* place le titre dans la 2e colonne, comme le contenu du main */
+}
+
+/* Couleur spécifique pour la partie "AI-Workspace" du sidebar */
+
+.highlight {
+    color: #c9a227; /* jaune, couleur d'accent de l'interface */
+}
+
+/* ============================================
+   4. SIDEBAR
+   ============================================ */
+#sidebar {
+    background-color: #1a2332; /* bleu marine foncé*/
+    padding: 24px 0;
+    border-right: 1px solid #e0e0e0; /* ligne de séparation avec le contenu principal */
+}
+
+#sidebar nav ul li {
+    margin-bottom: 4px; /* petit espacement entre les liens du menu */
+}
+
+#sidebar nav ul li a {
+    display: block; /* toute la largeur du lien devient cliquable */
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    color: #d4b869; /* jaune, couleur d'accent de l'interface */
+    transition: background-color 0.2s ease; /* petite animation douce au survol */
+}
+
+/* Effet visuel au survol d'un lien du menu */
+#sidebar nav ul li a:hover {
+    background-color: #28374d; /* bleu marine */
+    color: #e6c454; /* jaune */
+}
+
+/* ============================================
+   5. ZONE PRINCIPALE
+   ============================================ */
+main {
+    padding: 32px;
+}
+
+main section {
+    margin-bottom: 40px;
+}
+
+main section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+    color: #1f1f1f;
+}
+
+main section p {
+    color: #6b6b6b; /* gris moyen pour le texte secondaire/descriptif */
+}
