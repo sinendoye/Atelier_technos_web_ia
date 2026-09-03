@@ -340,3 +340,52 @@ textarea:focus, input:focus, select:focus {
 .historique-entree button:hover {
     background-color: #fbe4e1;
 }
+/* ============================================
+   9. TABLEAU DE BORD DYNAMIQUE (Bonus 1)
+   ============================================ */
+
+.dashboard-graphiques {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.carte-graphique {
+    display: flex;
+    flex-direction: column;
+}
+
+.carte-graphique h3,
+.carte > h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.carte-graphique canvas {
+    max-height: 260px;
+}
+
+#table-activite-recente {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#table-activite-recente th {
+    text-align: left;
+    font-size: 0.8rem;
+    color: #6b6b6b;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#table-activite-recente td {
+    padding: 12px 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f1f1f4;
+}
+
+#table-activite-recente tr:last-child td {
+    border-bottom: none;
+}

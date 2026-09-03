@@ -64,34 +64,150 @@ function ajouterAHistorique(service, contenu) {
     const historique = recupererHistorique();
 
     const nouvelleEntree = {
-        id: Date.now(),          // identifiant unique basé sur l'horodatage actuel
-        service: service,        // ex: "Résumé de texte"
-        contenu: contenu,        // ex: le texte saisi ou un résumé de l'action
-        date: new Date().toLocaleString('fr-FR') // date lisible, ex: "03/09/2026 14:32:10"
+        id: Date.now(),
+        service: service,
+        contenu: contenu,
+        date: new Date().toLocaleString('fr-FR')
     };
 
     historique.push(nouvelleEntree);
     localStorage.setItem(CLE_STOCKAGE, JSON.stringify(historique));
-
-    // Si la section Historique est déjà affichée, on rafraîchit son contenu tout de suite
     afficherHistorique();
+    actualiserTableauDeBord(); // ← ligne ajoutée
 }
 
 // Supprime une entrée précise à partir de son id
 function supprimerEntreeHistorique(id) {
     let historique = recupererHistorique();
     historique = historique.filter(function (entree) {
-        return entree.id !== id; // on garde toutes les entrées SAUF celle à supprimer
+        return entree.id !== id;
     });
     localStorage.setItem(CLE_STOCKAGE, JSON.stringify(historique));
     afficherHistorique();
+    actualiserTableauDeBord(); // ← ligne ajoutée
 }
 
 // Vide complètement l'historique
 function viderHistorique() {
     localStorage.removeItem(CLE_STOCKAGE);
     afficherHistorique();
+    actualiserTableauDeBord(); // ← ligne ajoutée
 }
+
+/* ============================================
+   TABLEAU DE BORD DYNAMIQUE (Bonus 1)
+   ============================================ */
+
+let graphiqueRequetes = null;
+let graphiqueServices = null;
+
+function actualiserTableauDeBord() {
+    const historique = recupererHistorique();
+
+    // --- 1. Chiffres simples ---
+    document.getElementById('stat-nb-requetes').textContent = historique.length;
+    document.getElementById('stat-nb-taches').textContent = historique.length;
+
+    // --- 2. Répartition par service (pour le camembert) ---
+    const repartitionParService = {};
+    historique.forEach(function (entree) {
+        const service = entree.service;
+        repartitionParService[service] = (repartitionParService[service] || 0) + 1;
+    });
+
+    const labelsServices = Object.keys(repartitionParService);
+    const valeursServices = Object.values(repartitionParService);
+
+    // --- 3. Requêtes par jour, sur les 7 derniers jours ---
+    const labelsJours = [];
+    const valeursJours = [];
+
+    for (let i = 6; i >= 0; i--) {
+        const jour = new Date();
+        jour.setDate(jour.getDate() - i);
+        const jourFormate = jour.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+
+        // On compte combien d'entrées de l'historique ont été créées ce jour-là
+        const nbRequetesCeJour = historique.filter(function (entree) {
+            const dateEntree = new Date(entree.id).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+            return dateEntree === jourFormate;
+        }).length;
+
+        labelsJours.push(jourFormate);
+        valeursJours.push(nbRequetesCeJour);
+    }
+
+    // --- 4. Mise à jour du graphique en courbe ---
+    // Si un graphique existe déjà, on le détruit avant d'en recréer un
+    // (sinon Chart.js empile les anciens graphiques par-dessus)
+    if (graphiqueRequetes) {
+        graphiqueRequetes.destroy();
+    }
+    const ctxRequetes = document.getElementById('chart-requetes').getContext('2d');
+    graphiqueRequetes = new Chart(ctxRequetes, {
+        type: 'line',
+        data: {
+            labels: labelsJours,
+            datasets: [{
+                label: 'Requêtes',
+                data: valeursJours,
+                borderColor: '#1a2332',
+                backgroundColor: 'rgba(26, 35, 50, 0.08)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // --- 5. Mise à jour du graphique en anneau (camembert) ---
+    if (graphiqueServices) {
+        graphiqueServices.destroy();
+    }
+    const ctxServices = document.getElementById('chart-services').getContext('2d');
+    graphiqueServices = new Chart(ctxServices, {
+        type: 'doughnut',
+        data: {
+            labels: labelsServices,
+            datasets: [{
+                data: valeursServices,
+                backgroundColor: ['#1a2332', '#27ae60', '#8e44ad', '#e67e22', '#3498db']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'right' } }
+        }
+    });
+
+    // --- 6. Mise à jour du tableau "Activité récente" ---
+    const corpsTableau = document.querySelector('#table-activite-recente tbody');
+    corpsTableau.innerHTML = '';
+
+    // On prend les 5 dernières entrées, dans l'ordre du plus récent au plus ancien
+    const dernieresEntrees = historique.slice(-5).reverse();
+
+    if (dernieresEntrees.length === 0) {
+        corpsTableau.innerHTML = '<tr><td colspan="3">Aucune activité pour le moment.</td></tr>';
+        return;
+    }
+
+    dernieresEntrees.forEach(function (entree) {
+        const ligne = document.createElement('tr');
+        ligne.innerHTML = `
+            <td>${entree.service}</td>
+            <td>${entree.contenu.substring(0, 40)}${entree.contenu.length > 40 ? '...' : ''}</td>
+            <td>${entree.date}</td>
+        `;
+        corpsTableau.appendChild(ligne);
+    });
+}
+
+
 
 /* ============================================
    Partie 3 : RÉSUMÉ DE TEXTE (simulé)

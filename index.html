@@ -10,6 +10,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="css/style.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <script src="js/script.js" defer></script>
     </head>
     <body>
@@ -47,8 +48,8 @@
                     </div>
                     <div class="stat-card">
                         <p class="stat-label">Nombre de requêtes</p>
-                        <p class="stat-value">1,256</p>
-                        <p class="stat-trend trend-vert">+18% ce mois-ci</p>
+                        <p class="stat-value" id="stat-nb-requetes">0</p>
+                        <p class="stat-trend trend-vert">Total enregistré</p>
                     </div>
                     <div class="stat-card">
                         <p class="stat-label">Nombre de modèles disponibles</p>
@@ -62,9 +63,36 @@
                     </div>
                     <div class="stat-card">
                         <p class="stat-label">Tâches exécutées</p>
-                        <p class="stat-value">342</p>
-                        <p class="stat-trend trend-vert">+22% ce mois-ci</p>
+                        <p class="stat-value" id="stat-nb-taches">0</p>
+                        <p class="stat-trend trend-vert">Total enregistré</p>
                     </div>
+                </div>
+
+                <div class="dashboard-graphiques">
+                    <div class="carte carte-graphique">
+                        <h3>Requêtes par jour</h3>
+                        <canvas id="chart-requetes"></canvas>
+                    </div>
+                    <div class="carte carte-graphique">
+                        <h3>Répartition des requêtes par service</h3>
+                        <canvas id="chart-services"></canvas>
+                    </div>
+                </div>
+
+                <div class="carte">
+                    <h3>Activité récente</h3>
+                    <table id="table-activite-recente">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Contenu</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rempli dynamiquement en JS -->
+                        </tbody>
+                    </table>
                 </div>
             </section>
             <section id ="chat">
