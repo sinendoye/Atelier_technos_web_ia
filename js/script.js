@@ -42,3 +42,70 @@ boutonResume.addEventListener('click', function () {
 
     zoneResultatResume.textContent = 'Résumé (simulé) : ' + resumeSimule;
 });
+
+/* ============================================
+   MODULE : TRADUCTION (simulé)
+   ============================================ */
+
+// 1. On récupère la section qui va accueillir les éléments générés
+const sectionTraduction = document.getElementById('traduction');
+
+// 2. Création de la zone de saisie du texte à traduire
+const champTraduction = document.createElement('textarea');
+champTraduction.id = 'traduction-input';
+champTraduction.placeholder = 'Saisissez le texte à traduire...';
+champTraduction.rows = 6;
+
+// 3. Création de la liste déroulante des langues
+const selectLangue = document.createElement('select');
+selectLangue.id = 'traduction-langue';
+
+// On définit les langues disponibles dans un tableau,
+// pour éviter de répéter le même code pour chaque <option>
+const langues = [
+    { valeur: 'en', texte: 'Anglais' },
+    { valeur: 'es', texte: 'Espagnol' },
+    { valeur: 'de', texte: 'Allemand' },
+    { valeur: 'ar', texte: 'Arabe' }
+];
+
+// On crée une <option> pour chaque langue du tableau
+langues.forEach(function (langue) {
+    const option = document.createElement('option');
+    option.value = langue.valeur;       // ce que le JS lira (ex: "en")
+    option.textContent = langue.texte;  // ce que l'utilisateur voit (ex: "Anglais")
+    selectLangue.appendChild(option);
+});
+
+// 4. Création du bouton "Traduire"
+const boutonTraduction = document.createElement('button');
+boutonTraduction.id = 'traduction-btn';
+boutonTraduction.textContent = 'Traduire';
+
+// 5. Création de la zone d'affichage du résultat
+const zoneResultatTraduction = document.createElement('div');
+zoneResultatTraduction.id = 'traduction-output';
+
+// 6. Insertion de tous les éléments dans la section, dans l'ordre voulu
+sectionTraduction.appendChild(champTraduction);
+sectionTraduction.appendChild(selectLangue);
+sectionTraduction.appendChild(boutonTraduction);
+sectionTraduction.appendChild(zoneResultatTraduction);
+
+// 7. Comportement au clic sur le bouton "Traduire"
+boutonTraduction.addEventListener('click', function () {
+    const texteSaisi = champTraduction.value.trim();
+    const langueChoisie = selectLangue.value; // ex: "en"
+    const texteLangue = selectLangue.options[selectLangue.selectedIndex].textContent; // ex: "Anglais"
+
+    if (texteSaisi === '') {
+        zoneResultatTraduction.textContent = 'Veuillez saisir un texte avant de traduire.';
+        return;
+    }
+
+    // Simulation : on ne fait pas de vraie traduction,
+    // on affiche juste le texte original + la langue cible choisie
+    const traductionSimulee = '[' + texteLangue + '] ' + texteSaisi;
+
+    zoneResultatTraduction.textContent = 'Traduction (simulée) : ' + traductionSimulee;
+});
