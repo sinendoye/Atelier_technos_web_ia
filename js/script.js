@@ -1,4 +1,51 @@
 /* ============================================
+   NAVIGATION ENTRE SECTIONS
+   Affiche uniquement la section correspondant
+   au lien cliqué dans la sidebar
+   ============================================ */
+
+// On récupère tous les liens du menu et toutes les sections
+const liensMenu = document.querySelectorAll('#sidebar nav a');
+const sections = document.querySelectorAll('main section');
+
+// Fonction qui masque toutes les sections sauf celle demandée
+function afficherSection(idSection) {
+    sections.forEach(function (section) {
+        if (section.id === idSection) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    });
+}
+
+// Au clic sur un lien du menu, on affiche la bonne section
+liensMenu.forEach(function (lien) {
+    lien.addEventListener('click', function (event) {
+        event.preventDefault(); // empêche le lien de recharger la page
+
+        const texteLien = lien.textContent.trim();
+
+        // On associe le texte du lien à l'id de la section correspondante
+        const correspondances = {
+            'Tableau de bord': 'tableau-de-bord',
+            'Chat': 'chat',
+            'Résumé de texte': 'resume',
+            'Classification': 'classification',
+            'Traduction': 'traduction',
+            'Historique': 'historique'
+        };
+
+        const idSection = correspondances[texteLien];
+        afficherSection(idSection);
+    });
+});
+
+// Au chargement de la page, on affiche uniquement le tableau de bord
+afficherSection('tableau-de-bord');
+
+
+/* ============================================
    Partie 3 : RÉSUMÉ DE TEXTE (simulé)
    Tous les éléments (zone de saisie, bouton,
    zone de résultat) sont générés dynamiquement
@@ -178,4 +225,73 @@ champChat.addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
         envoyerMessage();
     }
+});
+
+/* ============================================
+   Partie 6 : Prédictionn (simulée)
+   ============================================ */
+
+// 1. On récupère la section qui va accueillir les éléments générés
+const sectionPrediction = document.getElementById('classification');
+
+// 2. Création du champ "Âge"
+const champAge = document.createElement('input');
+champAge.type = 'number';
+champAge.id = 'prediction-age';
+champAge.placeholder = 'Âge';
+
+// 3. Création du champ "Revenu"
+const champRevenu = document.createElement('input');
+champRevenu.type = 'number';
+champRevenu.id = 'prediction-revenu';
+champRevenu.placeholder = 'Revenu mensuel';
+
+// 4. Création du champ "Ville"
+const champVille = document.createElement('input');
+champVille.type = 'text';
+champVille.id = 'prediction-ville';
+champVille.placeholder = 'Ville';
+
+// 5. Création du bouton "Prédire"
+const boutonPrediction = document.createElement('button');
+boutonPrediction.id = 'prediction-btn';
+boutonPrediction.textContent = 'Prédire';
+
+// 6. Création de la zone d'affichage du résultat
+const zoneResultatPrediction = document.createElement('div');
+zoneResultatPrediction.id = 'prediction-output';
+
+// 7. Insertion des éléments dans la section, dans l'ordre voulu
+sectionPrediction.appendChild(champAge);
+sectionPrediction.appendChild(champRevenu);
+sectionPrediction.appendChild(champVille);
+sectionPrediction.appendChild(boutonPrediction);
+sectionPrediction.appendChild(zoneResultatPrediction);
+
+// 8. Comportement au clic sur le bouton "Prédire"
+boutonPrediction.addEventListener('click', function () {
+    const age = champAge.value.trim();
+    const revenu = champRevenu.value.trim();
+    const ville = champVille.value.trim();
+
+    // Vérification : les 3 champs doivent être remplis
+    if (age === '' || revenu === '' || ville === '') {
+        zoneResultatPrediction.textContent = 'Veuillez remplir les trois champs avant de prédire.';
+        return;
+    }
+
+    // Simulation : on fait varier le résultat fictif selon le revenu saisi
+    // (juste pour rendre la simulation un peu plus crédible qu'un résultat toujours identique)
+    let categorie;
+    if (revenu < 1500) {
+        categorie = 'Profil économique';
+    } else if (revenu < 3500) {
+        categorie = 'Profil intermédiaire';
+    } else {
+        categorie = 'Profil premium';
+    }
+
+    const predictionSimulee = `À ${age} ans, résidant à ${ville}, avec un revenu de ${revenu}€ : ${categorie} (prédiction simulée).`;
+
+    zoneResultatPrediction.textContent = predictionSimulee;
 });
