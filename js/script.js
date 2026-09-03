@@ -45,6 +45,54 @@ liensMenu.forEach(function (lien) {
 afficherSection('tableau-de-bord');
 
 
+   /* ============================================
+   ETAPE 1 de la partie 7: GESTION DE L'HISTORIQUE (localStorage)
+   Fonctions de base réutilisées par tous les modules
+   ============================================ */
+
+const CLE_STOCKAGE = 'ai-workspace-historique';
+
+// Récupère l'historique complet depuis le localStorage
+function recupererHistorique() {
+    const donnees = localStorage.getItem(CLE_STOCKAGE);
+    // Si rien n'est encore enregistré, on retourne un tableau vide plutôt que "null"
+    return donnees ? JSON.parse(donnees) : [];
+}
+
+// Ajoute une nouvelle entrée dans l'historique et la sauvegarde
+function ajouterAHistorique(service, contenu) {
+    const historique = recupererHistorique();
+
+    const nouvelleEntree = {
+        id: Date.now(),          // identifiant unique basé sur l'horodatage actuel
+        service: service,        // ex: "Résumé de texte"
+        contenu: contenu,        // ex: le texte saisi ou un résumé de l'action
+        date: new Date().toLocaleString('fr-FR') // date lisible, ex: "03/09/2026 14:32:10"
+    };
+
+    historique.push(nouvelleEntree);
+    localStorage.setItem(CLE_STOCKAGE, JSON.stringify(historique));
+
+    // Si la section Historique est déjà affichée, on rafraîchit son contenu tout de suite
+    afficherHistorique();
+}
+
+// Supprime une entrée précise à partir de son id
+function supprimerEntreeHistorique(id) {
+    let historique = recupererHistorique();
+    historique = historique.filter(function (entree) {
+        return entree.id !== id; // on garde toutes les entrées SAUF celle à supprimer
+    });
+    localStorage.setItem(CLE_STOCKAGE, JSON.stringify(historique));
+    afficherHistorique();
+}
+
+// Vide complètement l'historique
+function viderHistorique() {
+    localStorage.removeItem(CLE_STOCKAGE);
+    afficherHistorique();
+}
+
 /* ============================================
    Partie 3 : RÉSUMÉ DE TEXTE (simulé)
    Tous les éléments (zone de saisie, bouton,
@@ -86,6 +134,8 @@ boutonResume.addEventListener('click', function () {
 
     const mots = texteSaisi.split(' ');
     const resumeSimule = mots.slice(0, 15).join(' ') + '...';
+
+    ajouterAHistorique('Résumé de texte', texteSaisi);
 
     zoneResultatResume.textContent = 'Résumé (simulé) : ' + resumeSimule;
 });
@@ -154,11 +204,12 @@ boutonTraduction.addEventListener('click', function () {
     // on affiche juste le texte original + la langue cible choisie
     const traductionSimulee = '[' + texteLangue + '] ' + texteSaisi;
 
+    ajouterAHistorique('Traduction', texteSaisi + ' → ' + texteLangue);
     zoneResultatTraduction.textContent = 'Traduction (simulée) : ' + traductionSimulee;
 });
 
 /* ============================================
-   Partie 5 : CHAT IA (simulé)
+   Partie 5 : CHAT (simulé)
    ============================================ */
 
 // 1. On récupère la section qui va accueillir les éléments générés
@@ -187,6 +238,7 @@ sectionChat.appendChild(boutonChat);
 
 // 6. Fonction qui ajoute un message dans la zone de conversation
 function ajouterMessage(texte, auteur) {
+
     // auteur peut valoir 'utilisateur' ou 'ia'
     const message = document.createElement('p');
     message.textContent = (auteur === 'utilisateur' ? 'Vous : ' : 'IA : ') + texte;
@@ -208,6 +260,7 @@ function envoyerMessage() {
 
     // On affiche d'abord le message de l'utilisateur
     ajouterMessage(texteSaisi, 'utilisateur');
+    ajouterAHistorique('Chat', texteSaisi);
 
     // On vide le champ de saisie pour que l'utilisateur puisse taper un nouveau message
     champChat.value = '';
@@ -293,5 +346,88 @@ boutonPrediction.addEventListener('click', function () {
 
     const predictionSimulee = `À ${age} ans, résidant à ${ville}, avec un revenu de ${revenu}€ : ${categorie} (prédiction simulée).`;
 
+    ajouterAHistorique('Prédiction', `Âge: ${age}, Revenu: ${revenu}, Ville: ${ville}`);
     zoneResultatPrediction.textContent = predictionSimulee;
 });
+
+/* ============================================
+   Partie 7 : HISTORIQUE
+   ============================================ */
+
+const sectionHistorique = document.getElementById('historique');
+
+// 1. Champ de recherche
+const champRecherche = document.createElement('input');
+champRecherche.type = 'text';
+champRecherche.id = 'historique-recherche';
+champRecherche.placeholder = 'Rechercher dans l\'historique...';
+
+// 2. Bouton "Tout vider"
+const boutonVider = document.createElement('button');
+boutonVider.id = 'historique-vider';
+boutonVider.textContent = 'Tout vider';
+
+// 3. Conteneur qui accueillera la liste des entrées
+const listeHistorique = document.createElement('div');
+listeHistorique.id = 'historique-liste';
+
+// 4. Insertion dans la section
+sectionHistorique.appendChild(champRecherche);
+sectionHistorique.appendChild(boutonVider);
+sectionHistorique.appendChild(listeHistorique);
+
+// 5. Fonction qui affiche (ou rafraîchit) la liste de l'historique
+function afficherHistorique(filtre = '') {
+    const historique = recupererHistorique();
+
+    // On repart de zéro à chaque affichage pour éviter les doublons
+    listeHistorique.innerHTML = '';
+
+    // On filtre les entrées si l'utilisateur a tapé quelque chose dans la recherche
+    const historiqueFiltre = historique.filter(function (entree) {
+        const texteComplet = (entree.service + ' ' + entree.contenu).toLowerCase();
+        return texteComplet.includes(filtre.toLowerCase());
+    });
+
+    if (historiqueFiltre.length === 0) {
+        listeHistorique.textContent = 'Aucune entrée à afficher.';
+        return;
+    }
+
+    // On crée un bloc pour chaque entrée filtrée
+    historiqueFiltre.forEach(function (entree) {
+        const blocEntree = document.createElement('div');
+        blocEntree.className = 'historique-entree';
+
+        const texteEntree = document.createElement('p');
+        texteEntree.textContent = `[${entree.date}] ${entree.service} : ${entree.contenu}`;
+
+        const boutonSupprimer = document.createElement('button');
+        boutonSupprimer.textContent = 'Supprimer';
+        boutonSupprimer.addEventListener('click', function () {
+            supprimerEntreeHistorique(entree.id);
+        });
+
+        blocEntree.appendChild(texteEntree);
+        blocEntree.appendChild(boutonSupprimer);
+        listeHistorique.appendChild(blocEntree);
+    });
+}
+
+// 6. Recherche en direct : à chaque frappe dans le champ de recherche
+champRecherche.addEventListener('input', function () {
+    afficherHistorique(champRecherche.value);
+});
+
+// 7. Clic sur "Tout vider"
+boutonVider.addEventListener('click', function () {
+    viderHistorique();
+});
+
+// 8. Premier affichage au chargement de la page
+afficherHistorique();
+
+
+
+
+
